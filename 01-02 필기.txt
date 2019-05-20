@@ -1,0 +1,646 @@
+﻿■ 요번주 일정
+
+ 1. 1/4(금요일) 파이썬 포트폴리오 제출( 임혜진 )
+
+     - 다음주 월요일부터 포트폴리오 평가를 위해 
+       선생님과 개인별 리뷰 (5시)
+
+ 2. 1/4(금요일) NCS 리눅스 시험 4시
+
+ 3. 1/7(월요일) 파이썬 데이터 입출력 재시험 
+
+ 4. 1/4(금요일) 딥러닝 수업 시작
+
+
+
+
+
+
+
+■ 6. pig 
+
+	1. 야후에서 만든 NoSQL
+		(야후에서는 40%이상의 job을 pig로 처리한다.)
+
+	2. "돼지들은 어떠한 것도 잘 먹는다"  라는 슬로건을 갖는다.
+	   어떠한 데이터든 잘 소화할 수 있다.
+
+	3. 사용자 정의 함수(오라클의 프로시저와 같은 언어)를 지원한다. (SQL + 프로그래밍 언어)
+									↓
+								엑셀의 매크로와 같은 기능
+
+
+
+
+
+
+
+
+■ Pig 설치
+
+   1. pig 설치 파일을 /home/oracle/ 밑에 올린다.
+
+   pig-0.12.0.tar.gz
+   
+   2. pig 설치 파일의 압축을 푼다.
+
+   $ tar xvf pig-0.12.0.tar.gz
+
+   3. pig 환결설정을 한다.
+   
+   $ mv pig-0.12.0 pig
+   $ cd pig
+   $ cd conf
+   $ vi pig.properties
+   
+   fs.default.name=hfdf://localhost:9000
+   mapred.job.tracker=localhost:9000
+   
+   4. .bash_profile 에 PIG_HOME 디렉토리를 지정한다.
+
+   $ cd
+   $ vi .bash_profile
+   
+   export PIG_HOME=/home/oracle/pig
+   export PATH=$PIG_HOME/bin:$PATH
+   
+   5. . .bash_profile 을 실행한다.
+
+   $ . .bash_profile
+   
+   6. pig 에 접속한다.
+
+   $ pig -x local
+
+
+
+
+문제 62. pig에 emp테이블을 생성하시오 !
+
+	grunt> emp = LOAD '/home/oracle/emp2.csv'  
+	               USING PigStorage(',')
+	              as (empno:int, ename:chararray, job:chararray,
+	                   mgr:int,hiredate:chararray, 
+	                    sal:int, comm:int,deptno:int);
+	
+	grunt> dump emp;
+
+	ths to process : 1
+	(7839,KING,PRESIDENT,0,1981-11-17,5000,0,10)
+	(7698,BLAKE,MANAGER,7839,1981-05-01,2850,0,30)
+	(7782,CLARK,MANAGER,7839,1981-05-09,2450,0,10)
+	(7566,JONES,MANAGER,7839,1981-04-01,2975,0,20)
+	(7654,MARTIN,SALESMAN,7698,1981-09-10,1250,1400,30)
+	(7499,ALLEN,SALESMAN,7698,1981-02-11,1600,300,30)
+	(7844,TURNER,SALESMAN,7698,1981-08-21,1500,0,30)
+	(7900,JAMES,CLERK,7698,1981-12-11,950,0,30)
+	(7521,WARD,SALESMAN,7698,1981-02-23,1250,500,30)
+	(7902,FORD,ANALYST,7566,1981-12-11,3000,0,20)
+	(7369,SMITH,CLERK,7902,1980-12-09,800,0,20)
+	(7788,SCOTT,ANALYST,7566,1982-12-22,3000,0,20)
+	(7876,ADAMS,CLERK,7788,1983-01-15,1100,0,20)
+	(7934,MILLER,CLERK,7782,1982-01-11,1300,0,10)
+
+
+
+문제 63. 이름과 월급을 출력하시오 !
+
+	grunt> data = foreach emp generate ename, sal ;
+	grunt> dump data;
+	
+	ths to process : 1
+	(KING,5000)
+	(BLAKE,2850)
+	(CLARK,2450)
+	(JONES,2975)
+	(MARTIN,1250)
+	(ALLEN,1600)
+	(TURNER,1500)
+	(JAMES,950)
+	(WARD,1250)
+	(FORD,3000)
+	(SMITH,800)
+	(SCOTT,3000)
+	(ADAMS,1100)
+	(MILLER,1300)
+
+
+
+문제 64. 월급이 3000이상인 사원들의 이름과 월급을 출력하시오 !
+
+	grunt> data = foreach emp generate ename, sal;
+	grunt> data2 = filter data by sal >= 3000;
+	grunt> dump data2;
+	
+	ths to process : 1
+	(KING,5000)
+	(FORD,3000)
+	(SCOTT,3000)
+
+
+
+문제 65. 직업이 SALESMAN인 사원들의 이름과 월급과 직업을 출력하시오 !
+
+	grunt> data = foreach emp generate ename, sal , job;
+	grunt> data2 = filter data by job == 'SALESMAN';
+	grunt> dump data;
+	
+	ths to process : 1
+	(MARTIN,1250,SALESMAN)
+	(ALLEN,1600,SALESMAN)
+	(TURNER,1500,SALESMAN)
+	(WARD,1250,SALESMAN)
+
+
+
+문제 66. 직업이 SALESMAN인 사원들의 이름과 월급을 출력하시오 !
+
+	grunt> data = foreach emp generate ename, sal, job;
+	grunt> data2 = filter data by job =='SALESMAN';
+	grunt> data3 = foreach data2 generate ename, sal;
+	grunt> dump data3;
+	
+	ths to process : 1
+	(MARTIN,1250)
+	(ALLEN,1600)
+	(TURNER,1500)
+	(WARD,1250)
+
+
+
+문제 67. 이름과 월급을 출력하는데 월급이 높은 사원부터 출력하시오 !
+
+	grunt> data = foreach emp generate ename, sal;
+	grunt> data2 = order data by sal desc;
+	grunt> dump data2;
+	
+	ths to process : 1
+	(KING,5000)
+	(FORD,3000)
+	(SCOTT,3000)
+	(JONES,2975)
+	(BLAKE,2850)
+	(CLARK,2450)
+	(ALLEN,1600)
+	(TURNER,1500)
+	(MILLER,1300)
+	(WARD,1250)
+	(MARTIN,1250)
+	(ADAMS,1100)
+	(JAMES,950)
+	(SMITH,800)
+
+
+
+문제 68. 부서번호가 30번인 사원들의 이름과 월급과 부서번호를 출력하는데 월급이 높은 사원부터 출력하시오 !
+
+	grunt> data = foreach emp generate ename, sal, deptno;
+	grunt> data2 = order data by sal desc;
+	grunt> data3 = filter data by deptno == 30;
+	grunt> dump data3;
+	
+	ths to process : 1
+	(BLAKE,2850,30)
+	(MARTIN,1250,30)
+	(ALLEN,1600,30)
+	(TURNER,1500,30)
+	(JAMES,950,30)
+	(WARD,1250,30)
+
+
+
+문제 69. 직업과 직업별 인원수를 출력하시오 !
+
+	SQL> select job, count(*)
+	       from emp
+	       group by job;
+
+	grunt> data = foreach emp generate job;
+	grunt> data2 = group data by job;
+	grunt> data3 = foreach data2 generate group, COUNT(data);
+	grunt> dump data3;
+	
+	
+	ths to process : 1
+	(CLERK,4)
+	(ANALYST,2)
+	(MANAGER,3)
+	(SALESMAN,4)
+	(PRESIDENT,1)
+
+
+문제 70. 부서번호, 부서번호별 토탈월급을 출력하시오 !
+
+	grunt> data = foreach emp generate deptno, sal;
+	grunt> data2 = group data by deptno;
+	grunt> data3 = foreach data2 generate group, SUM(data.sal);
+	
+	ths to process : 1
+	(10,8750)
+	(20,10875)
+	(30,9400)
+
+
+
+문제 71. 직업, 직업별 최대월급을 출력하시오 !
+
+	grunt> data = foreach emp generate job, sal;
+	grunt> data2 = group data by job;
+	grunt> data3 = foreach data2 generate group, MAX(data.sal);
+	grunt> dump data3;
+	
+	ths to process : 1
+	(CLERK,1300)
+	(ANALYST,3000)
+	(MANAGER,2975)
+	(SALESMAN,1600)
+	(PRESIDENT,5000)
+
+
+
+문제 72. 직업, 직업별 토탈월급을 출력하는데 직업이 SALESMAN인 사원은 제외하고 출력하시오 !
+
+	grunt> data = foreach emp generate job, sal;
+	grunt> data2 = group data by job;
+	grunt> data3 = foreach data2 generate group, SUM(data.sal);
+	grunt> data4 = filter data3 by group != 'SALESMAN';
+	grunt> dump data4;
+	
+	ths to process : 1
+	(CLERK,4150)
+	(ANALYST,6000)
+	(MANAGER,8275)
+	(PRESIDENT,5000)
+
+
+
+문제 73. 직업, 직업별 토탈월급을 출력하는데 직업이 SALESMAN 인 사원은 제외하고 출력하고 직업별 토탈월급이 
+	 4000 이상인 것만 출력하고 직업별 토탈월급이 높은것부터 출력하시오 !
+
+	grunt> data = foreach emp generate job, sal;
+	grunt> data1 = filter data by job != 'SALESMAN';
+	grunt> data2 = group data1 by job;
+	grunt> data3 = foreach data2 generate group, SUM(data1.sal) as sumsal;
+	grunt> data4 = filter data3 by sumsal >= 5000;
+	grunt> data5 = order data4 by sumsal desc;
+	grunt> dump data5;
+	
+	ths to process : 1
+	(MANAGER,8275)
+	(ANALYST,6000)
+	(PRESIDENT,5000)
+
+
+
+문제 74. 부서번호, 부서번호별 평균월급을 출력하는데 부서번호가 20번은 제외하고 출력하고 부서번호별 평균월급
+	 이 2000 이상인 것만 출력하고 부서번호별 평균월급이 높은것부터 출력하시오 ! (점심시간 문제)
+
+	grunt> data = foreach emp generate deptno, sal;
+	grunt> data1 = filter data by deptno != 20;
+	grunt> data2 = group data1 by deptno;
+	grunt> data3 = foreach data2 generate group, AVG(data1.sal) as avgsal;
+	grunt> data4 = filter data3 by avgsal >= 2000;
+	grunt> data5 = order data4 by avgsal desc;
+	grunt> dump data5;
+
+	ths to process : 1
+	(10,2916.6666666666665)
+
+
+
+문제 75. dept2.csv르 ㄹ이용해서 dept테이블을 pig에서 생성하시오 !
+
+
+	grunt> dept = LOAD '/home/oracle/dept2.csv'  
+	               USING PigStorage(',')
+	              as (deptno:int, dname:chararray, loc:chararray);
+	
+	grunt> dump dept;
+
+	(10,ACCOUNTING,NEW YORK)
+	(20,RESEARCH,DALLAS)
+	(30,SALES,CHICAGO)
+	(40,OPERATIONS,BOSTON)
+
+
+문제 76. 이름과 부서위치를 출력하시오 !
+
+	grunt> empdept = JOIN emp BY deptno, dept BY deptno;
+	grunt> data = foreach empdept generate ename, loc;
+	grunt> dump data;
+	
+	ths to process : 1
+	(MILLER,NEW YORK)
+	(CLARK,NEW YORK)
+	(KING,NEW YORK)
+	(JONES,DALLAS)
+	(FORD,DALLAS)
+	(SMITH,DALLAS)
+	(SCOTT,DALLAS)
+	(ADAMS,DALLAS)
+	(MARTIN,CHICAGO)
+	(ALLEN,CHICAGO)
+	(TURNER,CHICAGO)
+	(JAMES,CHICAGO)
+	(WARD,CHICAGO)
+	(BLAKE,CHICAGO)
+
+
+
+문제 77. DALLAS에서 근무하는 사원들의 이름과 부서워치를 출력하시오 !
+
+	grunt> empdept = JOIN emp BY deptno, dept BY deptno;
+	grunt> data = foreach empdept generate ename, loc;
+	grunt> data1 = filter data by loc == 'DALLAS';
+	grunt> dump data1;
+	
+	ths to process : 1
+	(JONES,DALLAS)
+	(FORD,DALLAS)
+	(SMITH,DALLAS)
+	(SCOTT,DALLAS)
+	(ADAMS,DALLAS)
+
+
+
+문제 78. 부서위치, 부서위치별 토탈월급을 출력하시오 !
+
+	grunt> empdept = JOIN emp BY deptno, dept BY deptno;
+	grunt> data = foreach empdept generate loc, sal;
+	grunt> data1 = group data by loc;
+	grunt> data2 = foreach data1 generate group, SUM(data.sal);
+	grunt> dump data2;
+	
+	ths to process : 1
+	(DALLAS,10875)
+	(CHICAGO,9400)
+	(NEW YORK,8750)
+
+
+
+문제 79. 부서위치, 부서위치별 인원수를 출력하시오 !
+
+	grunt> empdept = JOIN emp BY deptno, dept BY deptno;
+	grunt> data = foreach empdept generate loc;
+	grunt> data1 = group data by loc;
+	grunt> data2 = foreach data1 generate group, COUNT(data);
+	grunt> dump data2;
+	
+	ths to process : 1
+	(DALLAS,5)
+	(CHICAGO,6)	
+	(NEW YORK,3)
+	
+
+
+
+
+
+
+
+
+
+
+
+■ 우분투 설치
+
+	ubuntu-16.04.2-desktop-amd64
+
+
+
+문제 80. Ubuntu 리눅스 os를 설치하시오 !
+
+
+
+
+
+
+
+
+
+
+■ Mongo DB  설치 (우분투 os) 
+
+	https://velopert.com/436  블로그를 참고한다.
+	
+	1. MongoDB Pulbic GPG Key 등록 
+	
+		$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+	
+	2. MongoDB 를 위한 list file 생성 (자신의 Ubuntu 버전에 맞게 입력하세요)
+	
+		# Ubuntu 14.04
+		$ echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee 	/etc/apt/sources.list.d/mongodb-org-3.2.list
+	
+	3. apt-get 을 이용하여 설치
+	
+		$ sudo apt-get update
+		# latest stable version 설치
+		$ sudo apt-get install -y mongodb-org
+	
+	4. Next, start MongoDB with systemctl
+	
+		$ sudo systemctl start mongod
+	
+	5. 서버가 제대로 실행됐는지 확인
+	
+		$ sudo systemctl status mongod
+		# [initandlisten] waiting for connections on port <port>
+		$ sudo systemctl enable mongod
+	
+	
+	6. MongoDB 서버 접속
+	
+		$ mongo
+	
+		MongoDB shell version: 3.2.22
+		connecting to: test
+
+
+
+
+
+문제81. mongodb 에 emp 테이블을 생성하시오 !
+
+# emp 테이블 drop
+
+db.emp.drop()
+
+# emp 테이블 생성
+
+db.emp.save({empno:7499,ename:"SMITH",job:"CLERK",mgr:7902,hiredate:"1980-12-17",sal:1800,comm:800,deptno:20})
+db.emp.save({empno:7369,ename:"ALLEN",job:"SALESMAN",mgr:7698,hiredate:"1981-02-20",sal:1600,comm:800,deptno:20})
+db.emp.save({empno:7521,ename:"WARD",job:"SALESMAN",mgr:7698,hiredate:"1981-02-22",sal:1250,comm:500,deptno:30})
+db.emp.save({empno:7566,ename:"JONES",job:"MANAGER",mgr:7839, hiredate:"1981-04-02",sal:2975,comm:0,deptno:20})
+db.emp.save({empno:7654,ename:"MARTIN",job:"SALESMAN",mgr:7698,hiredate:"1981-09-28",sal:1250,comm:1400,deptno:30})
+db.emp.save({empno:7698,ename:"BLAKE",job:"MANAGER",mgr:7839,hiredate:"1981-05-01",sal:2850,comm:0,deptno:30})
+db.emp.save({empno:7782,ename:"CLARK",job:"MANAGER",mgr:7839,hiredate:"1981-06-09",sal:2450,comm:0,deptno:10})
+db.emp.save({empno:7788,ename:"SCOTT",job:"ANALYST",mgr:7566,hiredate:"1987-04-19",sal:3000,comm:0,deptno:20})
+db.emp.save({empno:7839,ename:"KING",job:"PRESIDENT",mgr:0,hiredate:"1981-11-17",sal:5000,comm:0,deptno:10})
+db.emp.save({empno:7844,ename:"TURNER",job:"SALESMAN",mgr:7698,hiredate:"1981-09-08",sal:1500,comm:0,deptno:30})
+db.emp.save({empno:7876,ename:"ADAMS",job:"CLERK",mgr:7788,hiredate:"1987-05-23",sal:1100, comm:0,deptno:20})
+db.emp.save({empno:7900,ename:"JAMES",job:"CLERK",mgr:7698,hiredate:"1981-12-03",sal:950,comm:0,deptno:30})
+db.emp.save({empno:7902,ename:"FORD",job:"ANALYST",mgr:7566,hiredate:"1981-12-03",sal:3500,comm:0,deptno:20})
+db.emp.save({empno:7934,ename:"MILLER",job:"CLERK",mgr:7782,hiredate:"1982-01-23",sal:1300, comm:0,deptno:20})
+
+문제82. 아래의 select 문을 mongodb 로 구현하시오 !
+
+	SQL> select count(*) from emp; 
+
+	> db.emp.aggregate([{$group:{_id:null, count:{$sum:1}}}])
+
+
+
+문제 83. 부서번호가 10번인 사원들의 사원번호와 이름 월급을 조회하시오 !
+
+	SQL> select empno, ename, sal
+	       from emp
+	       where deptno = 10;
+
+	> db.emp.find( {deptno:{$all:[10]}}, {_id:0, empno:1, ename:1, sal:1} )
+	{ "empno" : 7782, "ename" : "CLARK", "sal" : 2450 }
+	{ "empno" : 7839, "ename" : "KING", "sal" : 5000 }
+
+
+
+문제 84. 월급이 3000인 사원들의 이름과 월급과 직업을 출력하시오 !
+
+	> db.emp.find( {sal:{$all:[3000]}}, {_id:0, ename:1, sal:1, job:1} )
+	{ "ename" : "SCOTT", "job" : "ANALYST", "sal" : 3000 }
+
+
+
+
+
+
+
+
+
+
+■ mongodb에서 사용하는 연산자
+
+	1. 비교 연산자
+		$eq	= 	같다
+		$gt	> 	크다
+		$gte	>=	크거나 같다
+		$lt	< 	작다
+		$lte	<=	작거나 같다
+		$ne	!=	같지 않다.
+
+	2. 논리 연산자
+		$and
+		$or
+		$not
+
+	3. 산술 연산자
+		$add		더하기
+		$subtract	빼기
+		$multiply	곱하기
+		$devide		나누기
+		$mod		나머지
+
+
+
+문제 85. 월급이 2000이상인 사원들의 이름과 월급과 직업을 출력하시오 !
+
+	SQL> select ename, sal,job
+	       from emp
+	       where sal >= 2000;
+
+	>db.emp.find( {sal:{$gt:2000}}, {_id:0, ename:1, sal:1, job:1} )
+
+	{ "ename" : "JONES", "job" : "MANAGER", "sal" : 2975 }
+	{ "ename" : "BLAKE", "job" : "MANAGER", "sal" : 2850 }
+	{ "ename" : "CLARK", "job" : "MANAGER", "sal" : 2450 }
+	{ "ename" : "SCOTT", "job" : "ANALYST", "sal" : 3000 }
+	{ "ename" : "KING", "job" : "PRESIDENT", "sal" : 5000 }
+	{ "ename" : "FORD", "job" : "ANALYST", "sal" : 3500 }
+
+
+
+문제 86. 직업이 SALESMAN이 아닌 사원들의 이름과 직업을 출력하시오 !
+
+	SQL> select ename, job
+	       from emp
+	       where job != 'SALESMAN';
+
+	>db.emp.find( {job:{$ne:'SALESMAN'}}, {_id:0, ename:1, job:1} )
+	
+	{ "ename" : "SMITH", "job" : "CLERK" }
+	{ "ename" : "JONES", "job" : "MANAGER" }
+	{ "ename" : "BLAKE", "job" : "MANAGER" }
+	{ "ename" : "CLARK", "job" : "MANAGER" }
+	{ "ename" : "SCOTT", "job" : "ANALYST" }
+	{ "ename" : "KING", "job" : "PRESIDENT" }
+	{ "ename" : "ADAMS", "job" : "CLERK" }
+	{ "ename" : "JAMES", "job" : "CLERK" }
+	{ "ename" : "FORD", "job" : "ANALYST" }
+	{ "ename" : "MILLER", "job" : "CLERK" }
+
+
+
+문제 87. 이름과 월급을 출력하는데 월급이 높은 사원부터 출력하시오 !
+
+	SQL> select ename, sal
+	       from emp
+	       order by sal desc;
+
+	>db.emp.find( {}, {_id:0, ename:1, sal:1} ).sort( {sal:-1} )
+
+	{ "ename" : "KING", "sal" : 5000 }
+	{ "ename" : "FORD", "sal" : 3500 }
+	{ "ename" : "SCOTT", "sal" : 3000 }
+	{ "ename" : "JONES", "sal" : 2975 }
+	{ "ename" : "BLAKE", "sal" : 2850 }
+	{ "ename" : "CLARK", "sal" : 2450 }
+	{ "ename" : "SMITH", "sal" : 1800 }
+	{ "ename" : "ALLEN", "sal" : 1600 }
+	{ "ename" : "TURNER", "sal" : 1500 }
+	{ "ename" : "MILLER", "sal" : 1300 }
+	{ "ename" : "WARD", "sal" : 1250 }
+	{ "ename" : "MARTIN", "sal" : 1250 }
+	{ "ename" : "ADAMS", "sal" : 1100 }
+	{ "ename" : "JAMES", "sal" : 950 }
+
+
+
+
+문제 88. (오늘의 마지막 문제) 직업이 SALESMAN인 사원들의 이름과 월급과 직업을 출력하는데 월급이 낮은 사원부터
+	 출력하시오 !
+
+	>db.emp.find( {job:{$eq:'SALESMAN'}}, {_id:0, ename:1, sal:1, job:1} ).sort( {sal:1} )
+
+	{ "ename" : "WARD", "job" : "SALESMAN", "sal" : 1250 }
+	{ "ename" : "MARTIN", "job" : "SALESMAN", "sal" : 1250 }
+	{ "ename" : "TURNER", "job" : "SALESMAN", "sal" : 1500 }
+	{ "ename" : "ALLEN", "job" : "SALESMAN", "sal" : 1600 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

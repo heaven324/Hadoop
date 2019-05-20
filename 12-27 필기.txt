@@ -1,0 +1,317 @@
+하둡 ----> 딥러닝 ----> 텐서플로우 ----> R ----> final project
+
+
+■ 하둡 수업 
+
+	* 하둡 목차
+
+		1. 하둡을 배워야 하는 이유
+		2. 하둡 설치
+		3. 하둡 분산 파일 시스템 명령어
+		4. Hive
+		5. Pig
+		6. Tajo
+		7. sqoop으로 오라클과 연동
+		8. 맵리듀스를 java로 수행하기
+
+
+■ 1. 하둡을 배워야하는 이유
+
+	하둡 ? 대용량 데이터를 분산 처리할 수 있는 자바기반의 오픈소스 프레임워크
+
+	구글에서 구글에 쌓여지는 수많은 빅데이터(웹페이지, 데이터..)들을 구글에서도 처음에는 RDBMS(오라클)에
+	입력하고 데이터를 저장하고 처리하려는 시도를 했으나 너무 데이터가 많아서 실패를 하고 자체적으로
+	빅데이터를 저장할 기술을 개발을 했다.
+
+	대외적으로는 논문을 하나 발표했다.
+	그 논문을 더그커팅(하둡을 만든이)이 읽고 자바로 구현을 했다.
+	그 이름을 뭘로 할까 고민을 하다가 더그커팅의 애기가 노란 코끼리 장난감을 가지고 놀면서 Hadoop이라고 
+	한걸 듣고 hadoop이라고 이름을 지었다.
+
+	그래서 그 뒤로 hadoop을 편하게 이용할 수 있도록 개발한 모든 하둡 생태계에 개발 프로그램 이름들이 
+	다 동물 이름으로 지어지게 되었다.
+
+		Hadoop -------------------------------------------->>   Hive (벌떼)
+									Pig  (돼지)
+									Tajo (타조)
+	하둡의 장점? 분산처리가 가능하다.
+			↓
+		여러대의 노드를 묶어서 마치 하나의 서버처럼 보이게 하고 여러 노드의 자원을 이용해서 데이터를
+		처리하기 때문에 처리하는 속도가 빠른 장점이 있다.
+
+	예 : 한대의 서버로 1테라 바이트의 데이터를 처리하는데 걸리는 시간이 2시간 반이 걸린다고 한다면
+	     하둡으로 여러대의 서버를 병렬로 작업한다면 2분내에 데이터를 읽을 수 있다.
+
+	예 : 2008년 뉴욕 타임즈의 130년 분량의 신문기사 1100만 페이지를 하둡을 이용해서 하루만에 pdf로 변환을 
+	     했고 비용이 200만원 밖에 안들었다.
+	     하둡이 아닌 일반 서버로 처리했다면 14년이 걸린다.
+
+
+
+
+
+
+
+
+■ 하둡 에코 시스템
+
+
+	빅데이터 분석			R, Python 등을 이용해서 분석
+	     ↑
+	    NoSQL			Hbase Membase Cassandra
+	(빅데이터 저장)			Redis MongoDB CouchDB
+	     ↑					   ↑
+	분산 처리지원			Hive Pig Sqoop Zookeeper
+	     ↑					   ↑
+	분산 배치처리			하둡(Hadoop) - MapReduce
+	분산 파일관리			하둡(Hadoop) - HDFS
+
+
+
+
+
+★ Hive 사용 예
+
+	1. 
+		SQL> select * from emp;
+		
+		hive> select * from emp;
+
+
+	2. 
+		SQL> select * from emp where rownum <= 5;
+		hive> select * from emp limit 5;
+			↓
+		     NoSQL ------------> Not only SQL
+
+		     빅데이터를 하둡에서 검색하기 위해서는 자바를 알아야 하는데 자바를 모르더라도 SQL과
+		     비슷한 언어로 빅데이터를 검색할 수 있게 지원해주는 언어	
+
+
+
+
+
+
+
+
+
+■ 하둡 구성
+				데이터의 위치 정보
+				       ↑
+			   네임노드(Meta 데이터 관리)
+
+	데이터 노드 ----- 데이터 노드 ------ 데이터 노드
+	 (실 data)	   (실 data)	      (실 data)
+
+	총 3군데 노드에 각각 데이터를 복제를 한다.
+
+	야후의 경우는 약 5만대를 연결해서 하둡을 사용. 
+	페이스북은 약 1만대 이상의 하둡 클러스터를 이용
+
+		아마존, 이베이, 마이스페이스, 야후, NHN, Daum, kt, skt....... 등이 하둡을 사용하고 있다.
+
+
+	- 하둡의 장점 : 저렴한 구축 비용과 비용대비 빠른 데이터 처리
+
+	- 하둡의 단점 : 1. 무료이다 보니 유지보수가 어렵다.
+			2. 네임노드가 다운되면 고가용성이 지원이 안된다.
+			3. 한번 저장한 파일을 수정할 수 없다.
+			   기존 데이터 append는 가능한데 수정은 안된다.
+
+
+		정형화된 데이터 (표 형태)	비정형화된 데이터
+			↓(저장)			↓(저장)
+		      오라클			       하둡
+
+
+	* 하둡을 설치하기 위해서 리눅스 시스템에 올려야 하는 파일( oracle 홈디렉토리에 )
+
+	1. hadoop-1.2.1.tar.gz
+	2. jdk-7u60-linux-i586.gz
+	3. hive-0.12.0.tar.gz
+
+
+	* 하둡 주요 배포판
+
+		리눅스도 centos, redhat, ubuntu 처럼 배포판이 있듯이 하둡도 배포판이 있다.
+
+	1. Cloudera 업체에서 나온 CDH 	<---- 가장 높은 신뢰
+	2. Hortonworks에서 나온 HDP
+	3. 아마존에서 나온 EMR(Elastic Mapreduce)
+	4. Hstreaming에서 나온 Hstreaming
+
+	* 하둡 홈페이지
+		https://hadoop.apache.org/
+
+
+
+
+
+
+■ 하둡 설치 ( 실습_00.Hadoop install 참고)
+
+	1. java 설치 : 
+		하둡이 자바로 만들어져 있기 때문에 java를 설치해야 한다.
+
+	2. java 환경설정
+		java 홈디렉토리가 어디다 라고 지정
+
+	3. keygen 생성
+		여러노드(서버)들을 묶어서 하둡을 운영할 것이기 때문에 내 컴퓨터에서 상대방 컴퓨터로 접속 할때
+		패스워드를 매번 물어보지 않고 그냥 바로 접속하게 하려면 keygen을 생성해야 한다.
+
+	4. 하둡 설치파일을 올린 후 압축을 푼다.
+		hadoop-1.2.1.tar.gz
+
+	5. 하둡을 홈 디렉토리로 설정한다
+		
+
+	6. 하둡을 운영하기 위한 xml파일 3개를 수정한다.
+		1. core-site.xml
+		2. mapred-site.xml
+		3. hdfs-site.xml
+
+	7. 하둡 네임노드를 포멧한다.
+	8. 하둡을 시작시킨다. 
+	9. 하둡이 잘 시작되었는지 확인한다.
+
+
+
+
+
+
+■ Hive 설치
+
+	하이브란 ? 페이스북에서 만든 오픈소스
+
+	java를 몰라도 rdbms 에 익숙한 데이터 분석가들을 위해서 SQL을 이용해서 멥리듀싱 프로그래밍을 지원하는 
+	프로그램
+      
+		SQL ------------------------> java
+				하이브
+
+	emp.csv 를 가지고 하둡에서 이름과 월급을 조회하려면 java를 알아야 한다.
+
+
+	* HiveQL 이란?
+		- 하이브에서 사용되는 데이터는 HDFS(하둡파일 시스템)
+		  에 저장되므로 SELECT 는 되는데 update, delete명령어는 지원안함
+
+		- from 절의 서브쿼리 사용가능 (in line view)
+		- select문 사용시 having절 사용 불가능
+		- Stored procedure(PL/SQL)는 지원안함 (Hive 2.0 가능)
+
+		  오라클의 PL/SQL인 프로시져를 사용하려면 Java로 해야한다.
+
+
+★ 설치
+	1. hive 설치파일의 압축을 푼다.
+		[orcl:~]$ tar xvzf hive-0.12.0.tar.gz
+
+	2. hive로 접속한다.
+		[orcl:~]$ cd /home/oracle/hive-0.12.0/bin
+		[orcl:bin]$ ./hive
+	
+		hive> show tables;
+		OK
+		Time taken: 5.011 seconds
+
+
+	3. emp 테이블을 생성한다.
+		- /home/oracle/밑에 emp2.csv를 올린다.
+			# cd /media/sf_Share
+			# ls
+			# chown -R oracle:oinstall emp2.csv
+			# cp emp2.csv /home/oracle/
+
+		- hive에서 emp 테이블을 생성한다.
+			create table emp          
+			(empno int,  
+			ename string,
+			job string,
+			mgr int,
+			hiredate string,
+			sal int,
+			comm int,
+			deptno int)
+			 ROW FORMAT DELIMITED 
+			 FIELDS TERMINATED BY ','
+			 LINES TERMINATED BY '\n'
+			 STORED AS TEXTFILE ;
+
+			OK
+			Time taken: 4.568 seconds
+	
+		- emp.csv 를 emp테이블에 로드한다.
+		 하둡 파일 시스템에 emp2.csv 를 올리시오 !  
+		$ . .bash_profile 
+		$ hadoop  fs  -put  emp2.csv  emp2.csv
+		$ hadoop  fs  -ls  emp2.csv 
+		 emp2.csv 를 /home/oracle 에 올린다.
+
+		hive> load  data  inpath  '/user/oracle/emp2.csv'
+		    > overwrite  into  table   emp;
+		Loading data to table default.emp
+		Time taken: 4.098 seconds
+		hive> select  * from  emp;
+		OK
+		7839    KING    PRESIDENT       0       1981-11-17      5000    0       10
+		7698    BLAKE   MANAGER 7839    1981-05-01      2850    0       30
+		7782    CLARK   MANAGER 7839    1981-05-09      2450    0       10
+		7566    JONES   MANAGER 7839    1981-04-01      2975    0       20
+		7654    MARTIN  SALESMAN        7698    1981-09-10      1250    1400    30
+		7499    ALLEN   SALESMAN        7698    1981-02-11      1600    300     30
+		7844    TURNER  SALESMAN        7698    1981-08-21      1500    0       30
+		7900    JAMES   CLERK   7698    1981-12-11      950     0       30
+		7521    WARD    SALESMAN        7698    1981-02-23      1250    500     30
+		7902    FORD    ANALYST 7566    1981-12-11      3000    0       20
+		7369    SMITH   CLERK   7902    1980-12-09      800     0       20
+		7788    SCOTT   ANALYST 7566    1982-12-22      3000    0       20
+		7876    ADAMS   CLERK   7788    1983-01-15      1100    0       20
+		7934    MILLER  CLERK   7782    1982-01-11      1300    0       10
+		Time taken: 0.294 seconds, Fetched: 14 row(s)
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
